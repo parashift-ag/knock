@@ -10,7 +10,9 @@ module Knock
         @payload, _ = JWT.decode token.to_s, decode_key, true, options.merge(verify_options)
         @token = token
       else
-        @payload = claims.merge(payload)
+        @payload = payload
+        @payload.merge!(claims)
+
         @token = JWT.encode @payload,
           secret_key,
           Knock.token_signature_algorithm
@@ -52,11 +54,11 @@ module Knock
     end
 
     def token_lifetime
-      Knock.token_lifetime.from_now.to_i if verify_lifetime?
+      verify_lifetime? && Knock.token_lifetime.call(@payload).from_now.to_i
     end
 
     def verify_lifetime?
-      !Knock.token_lifetime.nil?
+      !Knock.token_lifetime.call(@payload).nil?
     end
 
     def verify_claims

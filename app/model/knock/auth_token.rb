@@ -54,7 +54,7 @@ module Knock
     end
 
     def token_lifetime
-      verify_lifetime? && Knock.token_lifetime.call(@payload).from_now.to_i
+      Knock.token_lifetime.call(@payload).from_now.to_i if verify_lifetime?
     end
 
     def verify_lifetime?
